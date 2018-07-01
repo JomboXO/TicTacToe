@@ -1,4 +1,7 @@
-package com.example;
+package com.example.logic;
+
+import com.example.entities.Board;
+import com.example.logic.LogicImpl;
 
 // 1='X'  2='O'
 public class TicTacToe {
