@@ -1,7 +1,7 @@
-package com.example.interfaces;
+package com.example.logic;
 
 import com.example.entities.Board;
 
 public interface Logic {
-    int makeMove(Board board);
+    void makeMove(int index);
 }

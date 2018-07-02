@@ -1,33 +1,34 @@
-package com.example.logic;
+package com.example.logic.impl;
 
 import com.example.entities.Board;
-import com.example.logic.LogicImpl;
+import com.example.logic.Logic;
+
+import java.util.Random;
 
 // 1='X'  2='O'
-public class TicTacToe {
+public class TicTacToe implements Logic{
     private int dimension;
     private LogicImpl opponent;
 
-    public TicTacToe(int dimension, LogicImpl opponent) {
+    public TicTacToe(int dimension) {
         this.dimension = dimension;
-        this.opponent = opponent;
     }
 
     public char getWinner(Board board) {
         int result;
         result = checkHorizontal(board);
-        if (result > 0) return board.getBoard()[result] == 1 ? 'X' : 'O';
+        if (result > 0) return board.getSquare(result) == 1 ? 'X' : 'O';
         result = checkVertical(board);
-        if (result > 0) return board.getBoard()[result] == 1 ? 'X' : 'O';
+        if (result > 0) return board.getSquare(result) == 1 ? 'X' : 'O';
         result = checkDiagonal(board);
-        if (result > 0) return board.getBoard()[result] == 1 ? 'X' : 'O';
+        if (result > 0) return board.getSquare(result) == 1 ? 'X' : 'O';
         return ' ';
     }
 
     private int checkOneCase(int condition, int firstIndex, int lastIndex, Board board, int condForLastIndex) {
         int result = -10;
         while (lastIndex <= condition) {
-            if (board.getBoard()[firstIndex] != board.getBoard()[lastIndex]) {
+            if (board.getSquare(firstIndex) != board.getSquare(firstIndex)) {
                 result = -1;
                 break;
             } else {
@@ -45,7 +46,7 @@ public class TicTacToe {
             result = checkOneCase(dimension - 1, firstIndex, firstIndex + 1, board, 1);
 
             if (result == -10) {
-                result = board.getBoard()[firstIndex];
+                result = board.getSquare(firstIndex);
                 break;
             }
         }
@@ -60,7 +61,7 @@ public class TicTacToe {
             result = checkOneCase(condition, firstIndex, dimension, board, dimension);
 
             if (result == -10) {
-                result = board.getBoard()[firstIndex];
+                result = board.getSquare(firstIndex);
                 break;
             }
         }
@@ -80,10 +81,16 @@ public class TicTacToe {
             condition = dimension * (dimension - 1);
             result = checkOneCase(condition, firstIndex, firstIndex + (dimension - 1), board, dimension - 1);
         }
-        if (result == -10) result = board.getBoard()[firstIndex];
+        if (result == -10) result = board.getSquare(firstIndex);
 
         return result;
     }
 
-
+    @Override
+    public void makeMove(int index) {
+        synchronized (Board.getInstance()){
+            Board board = Board.getInstance();
+            board.addTicTacToeChoice(index);
+        }
+    }
 }
