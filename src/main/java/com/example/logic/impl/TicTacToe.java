@@ -1,24 +1,29 @@
 package com.example.logic.impl;
 
 import com.example.entities.Board;
+import com.example.entities.GameResult;
 import com.example.logic.Logic;
 
 import java.util.Random;
+import java.util.concurrent.locks.LockSupport;
+import java.util.concurrent.locks.ReentrantLock;
 
 // 1='X'  2='O'
 public class TicTacToe implements Logic {
     private int dimension;
-    private LogicImpl opponent;
+    private ReentrantLock lock;
+    // private LogicImpl opponent;
 
-    public TicTacToe(int dimension) {
+    public TicTacToe(int dimension, ReentrantLock lock) {
         this.dimension = dimension;
+        this.lock = lock;
     }
 
-    public char getDraw(Board board) {
-        if (checkHorizontalDraw(board) == -10) return ' ';
-        if (checkVerticalDraw(board) == -10) return ' ';
-        if (checkDiagonalDraw(board) == -10) return ' ';
-        return '-';
+    public GameResult getDraw(Board board) {
+        if (checkHorizontalDraw(board) == -10) return GameResult.CONTINUE;
+        if (checkVerticalDraw(board) == -10) return GameResult.CONTINUE;
+        if (checkDiagonalDraw(board) == -10) return GameResult.CONTINUE;
+        return GameResult.DRAW;
     }
 
     private int checkDiagonalDraw(Board board) {
@@ -69,19 +74,17 @@ public class TicTacToe implements Logic {
         return result;
     }
 
-    public char getWinner() {
+    public GameResult getWinner() {
         int result;
         Board board = Board.getInstance();
         result = checkHorizontalWin(board);
-        if (result > 0) return board.getSquare(result) == 1 ? 'X' : 'O';
+        if (result > 0) return board.getSquare(result) == 1 ? GameResult.PLAYER : GameResult.OPPONENT;
         result = checkVerticalWin(board);
-        if (result > 0) return board.getSquare(result) == 1 ? 'X' : 'O';
+        if (result > 0) return board.getSquare(result) == 1 ? GameResult.PLAYER : GameResult.OPPONENT;
         result = checkDiagonalWin(board);
-        if (result > 0) return board.getSquare(result) == 1 ? 'X' : 'O';
+        if (result > 0) return board.getSquare(result) == 1 ? GameResult.PLAYER : GameResult.OPPONENT;
 
-        getDraw(board);
-
-        return ' ';
+        return getDraw(board);
     }
 
     private int checkOneCaseForWin(int condition, int firstIndex, int lastIndex, Board board, int condForLastIndex) {
@@ -146,10 +149,13 @@ public class TicTacToe implements Logic {
     }
 
     @Override
-    public void makeMove(int index) {
-        synchronized (Board.getInstance()) {
+    public void makeMove(int... index) {
+        lock.lock();
+        try {
             Board board = Board.getInstance();
-            board.addTicTacToeChoice(index);
+            board.addTicTacToeChoice(index[0]);
+        }finally {
+            lock.unlock();
         }
     }
 }

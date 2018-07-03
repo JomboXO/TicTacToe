@@ -1,8 +1,10 @@
 package com.example;
 
 import com.example.entities.Board;
-import com.example.entities.MyDocumentFilter;
+import com.example.view.MyDocumentFilter;
+import com.example.entities.Square;
 import com.example.logic.Logic;
+import com.example.logic.Observer;
 import com.example.logic.impl.LogicImpl;
 import com.example.logic.impl.TicTacToe;
 
@@ -11,29 +13,29 @@ import javax.swing.text.AbstractDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
+import java.util.concurrent.locks.ReentrantLock;
 
-public class Main extends JFrame{
+public class Main extends JFrame {
 
+    private ReentrantLock lock = new ReentrantLock();
     private TicTacToe ticTacToe;
-    private Logic logic = new LogicImpl();
+    private Logic logic = new LogicImpl(lock);
+    private JPanel panel = new JPanel();
 
-    public Main(){
+    public Main() {
         super("TicTacToe");
-        JPanel panel = new JPanel();
-        //super.getContentPane().add(panel, BorderLayout.CENTER);
-        startNewGame(panel);
+        startNewGame();
     }
 
-    private void startNewGame(JPanel panel) {
+    private void startNewGame() {
         panel.revalidate();
         deleteComponents(panel);
-        setBounds(300,300,200,200);
+        setBounds(300, 300, 200, 200);
         setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
 
         JLabel label = new JLabel("Input size of the board:");
         JTextField textField = new JTextField(5);
-        ((AbstractDocument)textField.getDocument()).setDocumentFilter(new MyDocumentFilter());
+        ((AbstractDocument) textField.getDocument()).setDocumentFilter(new MyDocumentFilter());
         JButton button = new JButton("Start game");
         button.setEnabled(false);
 
@@ -42,7 +44,7 @@ public class Main extends JFrame{
         panel.add(button);
         add(panel);
         textField.addActionListener(e -> {
-            if (textField.getText().equals(""))button.setEnabled(false);
+            if (textField.getText().equals("")) button.setEnabled(false);
             else button.setEnabled(true);
         });
 
@@ -57,44 +59,72 @@ public class Main extends JFrame{
         deleteComponents(panel);
         Board board = Board.getInstance();
         board.setDimention(dimension);
-        ticTacToe = new TicTacToe(dimension);
+        ticTacToe = new TicTacToe(dimension, lock);
 
-        JButton[] buttons = new JButton[dimension*dimension];
-        for (int i = 0; i < dimension*dimension; i++){
+        JButton[] buttons = new JButton[dimension * dimension];
+        for (int i = 0; i < dimension * dimension; i++) {
             buttons[i] = new JButton();
-            buttons[i].setPreferredSize(new Dimension(50,45));
+            buttons[i].setPreferredSize(new Dimension(50, 45));
             panel.add(buttons[i]);
             JButton button = buttons[i];
 
-            button.addActionListener(new ButtonClickListener(i));
+            ButtonChangeListener changeListener = new ButtonChangeListener(i, button);
+            board.registerObserver(changeListener);
+            button.addActionListener(changeListener);
+
         }
 
-        setBounds(300,300,dimension*62,dimension*45+130);
+        setBounds(300, 300, dimension * 62, dimension * 45 + 130);
         JButton button = new JButton("Start again");
-        button.addActionListener(e -> startNewGame(panel));
+        button.addActionListener(e -> startNewGame());
         panel.add(button);
 
 
     }
 
-    private class ButtonClickListener implements ActionListener{
+    private class ButtonChangeListener implements ActionListener, Observer {
 
         private int index;
+        private JButton button;
 
-        public ButtonClickListener(int index) {
+        public ButtonChangeListener(int index, JButton button) {
             this.index = index;
+            this.button = button;
         }
 
         @Override
         public void actionPerformed(ActionEvent e) {
             ticTacToe.makeMove(index);
-            ((JButton) e.getSource()).setText("X");
-            System.out.println(Board.getInstance());
+            switch (ticTacToe.getWinner()) {
+                case DRAW:
+                    JOptionPane.showMessageDialog(Main.this, "Game ended with draw");
+                    startNewGame();
+                    break;
+                case PLAYER:
+                    JOptionPane.showMessageDialog(Main.this, "Player X won");
+                    startNewGame();
+                    break;
+                case OPPONENT:
+                    JOptionPane.showMessageDialog(Main.this, "Player O won");
+                    startNewGame();
+                    break;
+                case CONTINUE:
+                default:
+                    System.out.println("next step");
+            }
+            logic.makeMove();
+        }
+
+        @Override
+        public void update(Square square) {
+            if (square.getIndex() == index) {
+                button.setText(square.getName());
+            }
         }
     }
 
     private void deleteComponents(JPanel panel) {
-        for (Component component: panel.getComponents()){
+        for (Component component : panel.getComponents()) {
             panel.remove(component);
         }
     }

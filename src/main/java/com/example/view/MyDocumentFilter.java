@@ -1,4 +1,4 @@
-package com.example.entities;
+package com.example.view;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DocumentFilter;
