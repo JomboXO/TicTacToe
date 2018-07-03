@@ -6,7 +6,7 @@ import com.example.logic.Logic;
 import java.util.Random;
 
 // 1='X'  2='O'
-public class TicTacToe implements Logic{
+public class TicTacToe implements Logic {
     private int dimension;
     private LogicImpl opponent;
 
@@ -14,21 +14,52 @@ public class TicTacToe implements Logic{
         this.dimension = dimension;
     }
 
-    public char getWinner(Board board) {
-        int result;
-        result = checkHorizontal(board);
-        if (result > 0) return board.getSquare(result) == 1 ? 'X' : 'O';
-        result = checkVertical(board);
-        if (result > 0) return board.getSquare(result) == 1 ? 'X' : 'O';
-        result = checkDiagonal(board);
-        if (result > 0) return board.getSquare(result) == 1 ? 'X' : 'O';
-        return ' ';
+    public char getDraw(Board board) {
+        if (checkHorizontalDraw(board) == -10) return ' ';
+        if (checkVerticalDraw(board) == -10) return ' ';
+        if (checkDiagonalDraw(board) == -10) return ' ';
+        return '-';
     }
 
-    private int checkOneCase(int condition, int firstIndex, int lastIndex, Board board, int condForLastIndex) {
+    private int checkDiagonalDraw(Board board) {
+        int result;
+        //first diagonal
+        int firstIndex = 0;
+        int condition = dimension * dimension - 1;
+        result = checkOneCaseForDraw(condition, firstIndex, dimension + 1, board, dimension + 1);
+
+        //check second diagonal if first nobody can win
+        if (result == -1) {
+            firstIndex = dimension - 1;
+            condition = dimension * (dimension - 1);
+            result = checkOneCaseForDraw(condition, firstIndex, firstIndex + (dimension - 1), board, dimension - 1);
+        }
+        return result;
+    }
+
+    private int checkVerticalDraw(Board board) {
+        int result = -10;
+        int condition = dimension * (dimension - 1);
+        for (int firstIndex = 0; firstIndex < dimension; firstIndex++) {
+            result = checkOneCaseForDraw(condition, firstIndex, dimension, board, dimension);
+            if (result == -10) break;
+        }
+        return result;
+    }
+
+    private int checkHorizontalDraw(Board board) {
+        int result = -10;
+        for (int firstIndex = 0; firstIndex < dimension; firstIndex++) {
+            result = checkOneCaseForDraw(dimension - 1, firstIndex, firstIndex + 1, board, 1);
+            if (result == -10) break;
+        }
+        return result;
+    }
+
+    private int checkOneCaseForDraw(int condition, int firstIndex, int lastIndex, Board board, int condForLastIndex) {
         int result = -10;
         while (lastIndex <= condition) {
-            if (board.getSquare(firstIndex) != board.getSquare(firstIndex)) {
+            if (board.getSquare(firstIndex) != board.getSquare(lastIndex) && (board.getSquare(firstIndex) != 0 && board.getSquare(lastIndex) != 0)) {
                 result = -1;
                 break;
             } else {
@@ -38,12 +69,40 @@ public class TicTacToe implements Logic{
         return result;
     }
 
-    private int checkHorizontal(Board board) {
+    public char getWinner() {
+        int result;
+        Board board = Board.getInstance();
+        result = checkHorizontalWin(board);
+        if (result > 0) return board.getSquare(result) == 1 ? 'X' : 'O';
+        result = checkVerticalWin(board);
+        if (result > 0) return board.getSquare(result) == 1 ? 'X' : 'O';
+        result = checkDiagonalWin(board);
+        if (result > 0) return board.getSquare(result) == 1 ? 'X' : 'O';
+
+        getDraw(board);
+
+        return ' ';
+    }
+
+    private int checkOneCaseForWin(int condition, int firstIndex, int lastIndex, Board board, int condForLastIndex) {
+        int result = -10;
+        while (lastIndex <= condition) {
+            if (board.getSquare(firstIndex) != board.getSquare(lastIndex)) {
+                result = -1;
+                break;
+            } else {
+                lastIndex = lastIndex + condForLastIndex;
+            }
+        }
+        return result;
+    }
+
+    private int checkHorizontalWin(Board board) {
         //initial result for checking
         int result = -10;
         for (int firstIndex = 0; firstIndex < dimension; firstIndex++) {
 
-            result = checkOneCase(dimension - 1, firstIndex, firstIndex + 1, board, 1);
+            result = checkOneCaseForWin(dimension - 1, firstIndex, firstIndex + 1, board, 1);
 
             if (result == -10) {
                 result = board.getSquare(firstIndex);
@@ -53,12 +112,12 @@ public class TicTacToe implements Logic{
         return result;
     }
 
-    private int checkVertical(Board board) {
+    private int checkVerticalWin(Board board) {
         int result = -10;
         int condition = dimension * (dimension - 1);
         for (int firstIndex = 0; firstIndex < dimension; firstIndex++) {
 
-            result = checkOneCase(condition, firstIndex, dimension, board, dimension);
+            result = checkOneCaseForWin(condition, firstIndex, dimension, board, dimension);
 
             if (result == -10) {
                 result = board.getSquare(firstIndex);
@@ -68,18 +127,18 @@ public class TicTacToe implements Logic{
         return result;
     }
 
-    private int checkDiagonal(Board board) {
+    private int checkDiagonalWin(Board board) {
         int result;
         //first diagonal
         int firstIndex = 0;
         int condition = dimension * dimension - 1;
-        result = checkOneCase(condition, firstIndex, dimension + 1, board, dimension + 1);
+        result = checkOneCaseForWin(condition, firstIndex, dimension + 1, board, dimension + 1);
 
         //check second diagonal if first didn't find winner
         if (result == -1) {
             firstIndex = dimension - 1;
             condition = dimension * (dimension - 1);
-            result = checkOneCase(condition, firstIndex, firstIndex + (dimension - 1), board, dimension - 1);
+            result = checkOneCaseForWin(condition, firstIndex, firstIndex + (dimension - 1), board, dimension - 1);
         }
         if (result == -10) result = board.getSquare(firstIndex);
 
@@ -88,7 +147,7 @@ public class TicTacToe implements Logic{
 
     @Override
     public void makeMove(int index) {
-        synchronized (Board.getInstance()){
+        synchronized (Board.getInstance()) {
             Board board = Board.getInstance();
             board.addTicTacToeChoice(index);
         }
