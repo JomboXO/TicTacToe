@@ -11,12 +11,9 @@ import java.util.concurrent.locks.ReentrantLock;
 // 1='X'  2='O'
 public class TicTacToe implements Logic {
     private int dimension;
-    private ReentrantLock lock;
-    // private LogicImpl opponent;
 
-    public TicTacToe(int dimension, ReentrantLock lock) {
+    public TicTacToe(int dimension) {
         this.dimension = dimension;
-        this.lock = lock;
     }
 
     public GameResult getDraw(Board board) {
@@ -150,12 +147,19 @@ public class TicTacToe implements Logic {
 
     @Override
     public void makeMove(int... index) {
-        lock.lock();
-        try {
-            Board board = Board.getInstance();
-            board.addTicTacToeChoice(index[0]);
-        }finally {
-            lock.unlock();
+        synchronized (Board.getInstance()) {
+            try {
+
+                System.out.println("Do wait for X:"+ Board.getInstance());
+                Board board = Board.getInstance();
+                board.addTicTacToeChoice(index[0]);
+                //Board.getInstance().wait();
+            } catch (Exception e) {
+                System.err.println("Wait for X interrupted");
+            }
+
+            Board.getInstance().isLogicStep.set(true);
+            Board.getInstance().notifyAll();
         }
     }
 }

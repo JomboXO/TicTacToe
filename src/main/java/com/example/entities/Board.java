@@ -3,10 +3,10 @@ package com.example.entities;
 import com.example.logic.Observable;
 import com.example.logic.Observer;
 
-
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.IntStream;
 
 public class Board implements Observable {
@@ -15,6 +15,7 @@ public class Board implements Observable {
     private static final Board board = new Board();
     private int[] inlineBoard;
     private final int defaultValue = 0;
+    public AtomicBoolean isLogicStep = new AtomicBoolean(false);
 
     public static Board getInstance() {
         return board;
@@ -29,7 +30,7 @@ public class Board implements Observable {
         Arrays.fill(inlineBoard, defaultValue);
     }
 
-    public boolean isFull(){
+    public synchronized boolean isFull() {
         boolean match = IntStream.of(inlineBoard).anyMatch(v -> v == defaultValue);
         return !match;
     }
@@ -37,13 +38,13 @@ public class Board implements Observable {
     //'X'
     public void addTicTacToeChoice(int index) {
         inlineBoard[index] = 1;
-        notifyObservers(Square.of(index,"X"));
+        notifyObservers(Square.of(index, "X"));
     }
 
     //'O'
     public void addLogicChoice(int index) {
         inlineBoard[index] = 2;
-        notifyObservers(Square.of(index,"O"));
+        notifyObservers(Square.of(index, "O"));
     }
 
     public int getSquare(int index) {
@@ -71,8 +72,6 @@ public class Board implements Observable {
 
     @Override
     public String toString() {
-        return "Board{" +
-                "inlineBoard=" + Arrays.toString(inlineBoard) +
-                '}';
+        return Arrays.toString(inlineBoard);
     }
 }

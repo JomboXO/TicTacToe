@@ -13,17 +13,18 @@ import javax.swing.text.AbstractDocument;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class Main extends JFrame {
 
-    private ReentrantLock lock = new ReentrantLock();
     private TicTacToe ticTacToe;
-    private Logic logic = new LogicImpl(lock);
     private JPanel panel = new JPanel();
-
+    private ExecutorService executorService = Executors.newSingleThreadExecutor();
     public Main() {
         super("TicTacToe");
+        executorService.execute(new LogicImpl());
         startNewGame();
     }
 
@@ -59,7 +60,8 @@ public class Main extends JFrame {
         deleteComponents(panel);
         Board board = Board.getInstance();
         board.setDimention(dimension);
-        ticTacToe = new TicTacToe(dimension, lock);
+
+        ticTacToe = new TicTacToe(dimension);
 
         JButton[] buttons = new JButton[dimension * dimension];
         for (int i = 0; i < dimension * dimension; i++) {
@@ -112,7 +114,7 @@ public class Main extends JFrame {
                 default:
                     System.out.println("next step");
             }
-            logic.makeMove();
+            //logic.makeMove();
         }
 
         @Override
