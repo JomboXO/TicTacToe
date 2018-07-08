@@ -1,7 +1,5 @@
 package com.example.logic;
 
-import com.example.entities.Board;
-
-public interface Logic {
+public interface Player {
     void makeMove(int... index);
 }

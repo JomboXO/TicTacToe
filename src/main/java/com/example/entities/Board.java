@@ -3,36 +3,30 @@ package com.example.entities;
 import com.example.logic.Observable;
 import com.example.logic.Observer;
 
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.IntStream;
 
-public class Board implements Observable {
+public class Board implements Observable<Square> {
 
-    private List<Observer> observers;
+    private List<Observer<Square>> observers;
+    private int dimension;
     private static final Board board = new Board();
     private int[] inlineBoard;
-    private final int defaultValue = 0;
-    public AtomicBoolean isLogicStep = new AtomicBoolean(false);
+    private static final int DEFAULT_VALUE = 0;
 
     public static Board getInstance() {
         return board;
     }
 
     private Board() {
-        observers = new LinkedList<>();
+        observers = new ArrayList<>();
     }
 
     public void setDimention(int dimension) {
+        this.dimension = dimension;
         inlineBoard = new int[dimension * dimension];
-        Arrays.fill(inlineBoard, defaultValue);
-    }
-
-    public synchronized boolean isFull() {
-        boolean match = IntStream.of(inlineBoard).anyMatch(v -> v == defaultValue);
-        return !match;
+        Arrays.fill(inlineBoard, DEFAULT_VALUE);
     }
 
     //'X'
@@ -56,22 +50,31 @@ public class Board implements Observable {
     }
 
     @Override
-    public void registerObserver(Observer o) {
+    public void registerObserver(Observer<Square> o) {
         observers.add(o);
     }
 
     @Override
-    public void removeObserver(Observer o) {
+    public void removeObserver(Observer<Square> o) {
         observers.remove(o);
     }
 
     @Override
-    public void notifyObservers(Square square) {
-        observers.forEach(observer -> observer.update(square));
+    public void removeAllObservers() {
+        observers.clear();
+    }
+
+    @Override
+    public void notifyObservers(Square... square) {
+        observers.forEach(observer -> observer.update(square[0]));
     }
 
     @Override
     public String toString() {
         return Arrays.toString(inlineBoard);
+    }
+
+    public int getDimension() {
+        return dimension;
     }
 }

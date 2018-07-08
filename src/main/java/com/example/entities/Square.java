@@ -1,7 +1,5 @@
 package com.example.entities;
 
-import com.example.logic.Observer;
-
 public class Square {
     private int index;
     private String name;
