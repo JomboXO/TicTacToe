@@ -13,6 +13,10 @@ import javax.swing.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+/**
+ * Main class implements draw window for game,
+ * gets result when the game was ended
+ */
 public class TicTacToeFrame extends JFrame implements Observer<GameResult>{
 
     private static final int DEF_X_COORD = 200;

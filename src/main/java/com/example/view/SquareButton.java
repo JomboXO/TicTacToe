@@ -10,6 +10,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+/**
+ * This class describe every button that is used as a field
+ */
 public class SquareButton extends JButton {
     private TicTacToeFrame frame;
     private int index;

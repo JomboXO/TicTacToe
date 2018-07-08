@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * 1='X' 2='O'
+ * This class for finding result of the game
  */
 public class ResultHandler implements Observable<GameResult> {
 
@@ -27,6 +28,10 @@ public class ResultHandler implements Observable<GameResult> {
         Board.getInstance().removeAllObservers();
     }
 
+    /**
+     *  Check every winning combination
+     * @return GameResult enum value - who won or draws or game goes on
+     */
     private GameResult getWinner() {
         int result;
         GameResult gameResult;

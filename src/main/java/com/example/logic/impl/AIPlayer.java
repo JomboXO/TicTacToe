@@ -6,6 +6,9 @@ import com.example.logic.Player;
 
 import java.util.Random;
 
+/**
+ * The class implements the computer game
+ */
 public class AIPlayer implements Player, Runnable {
     private ResultHandler resultHandler;
     private TicTacToeFrame frame;

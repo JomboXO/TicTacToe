@@ -3,6 +3,9 @@ package com.example.logic.impl;
 import com.example.entities.Board;
 import com.example.logic.Player;
 
+/**
+ * The class implements the human(main player) game
+ */
 public class HumanPlayer implements Player {
 
     private ResultHandler resultHandler;

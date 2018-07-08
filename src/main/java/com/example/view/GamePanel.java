@@ -7,6 +7,9 @@ import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 import javax.swing.text.AbstractDocument;
 
+/**
+ * Draw new Panel before beginning new game
+ */
 public class GamePanel extends JPanel{
 
     private static final int COLUMN_SIZE = 5;
@@ -36,7 +39,7 @@ public class GamePanel extends JPanel{
             }
 
             private void enableButton() {
-                button.setEnabled(!"".equals(textField.getText()));
+                button.setEnabled(!"".equals(textField.getText()) && Integer.valueOf(textField.getText()) >= 5);
             }
         });
 
