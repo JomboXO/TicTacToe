@@ -16,61 +16,6 @@ public class TicTacToe implements Logic {
         this.dimension = dimension;
     }
 
-    public GameResult getDraw(Board board) {
-        if (checkHorizontalDraw(board) == -10) return GameResult.CONTINUE;
-        if (checkVerticalDraw(board) == -10) return GameResult.CONTINUE;
-        if (checkDiagonalDraw(board) == -10) return GameResult.CONTINUE;
-        return GameResult.DRAW;
-    }
-
-    private int checkDiagonalDraw(Board board) {
-        int result;
-        //first diagonal
-        int firstIndex = 0;
-        int condition = dimension * dimension - 1;
-        result = checkOneCaseForDraw(condition, firstIndex, dimension + 1, board, dimension + 1);
-
-        //check second diagonal if first nobody can win
-        if (result == -1) {
-            firstIndex = dimension - 1;
-            condition = dimension * (dimension - 1);
-            result = checkOneCaseForDraw(condition, firstIndex, firstIndex + (dimension - 1), board, dimension - 1);
-        }
-        return result;
-    }
-
-    private int checkVerticalDraw(Board board) {
-        int result = -10;
-        for (int firstIndex = 0; firstIndex < dimension; firstIndex++) {
-            result = checkOneCaseForDraw(dimension*(dimension - 1)+firstIndex, firstIndex, firstIndex+dimension, board,dimension);
-            if (result == -10) break;
-        }
-        return result;
-    }
-
-    private int checkHorizontalDraw(Board board) {
-        int result = -10;
-
-        int conditionfForBreak = dimension*(dimension - 1);
-        for (int firstIndex = 0; firstIndex <= conditionfForBreak; firstIndex+=dimension) {
-            result = checkOneCaseForDraw(firstIndex+dimension-1, firstIndex, firstIndex+1, board,1);
-            if (result == -10) break;
-        }
-
-        return result;
-    }
-
-    private int checkOneCaseForDraw(int condition, int firstIndex, int lastIndex, Board board, int condForLastIndex) {
-        int result = -10;
-        for (int j = lastIndex; j <= condition; j+=condForLastIndex){
-            if (board.getSquare(firstIndex) != board.getSquare(j) && (board.getSquare(firstIndex) != 0 && board.getSquare(j) != 0)) {
-                result = -1;
-                break;
-            }
-        }
-        return result;
-    }
-
     public GameResult getWinner() {
         int result;
         Board board = Board.getInstance();
@@ -137,6 +82,62 @@ public class TicTacToe implements Logic {
         }
         if (result == -10) result = board.getSquare(firstIndex);
 
+        return result;
+    }
+    public GameResult getDraw(Board board) {
+        if (checkHorizontalDraw(board) == -10) return GameResult.CONTINUE;
+        if (checkVerticalDraw(board) == -10) return GameResult.CONTINUE;
+        if (checkDiagonalDraw(board) == -10) return GameResult.CONTINUE;
+        return GameResult.DRAW;
+    }
+
+    private int checkDiagonalDraw(Board board) {
+        int result;
+        //first diagonal
+        int firstIndex = 0;
+        int condition = dimension * dimension - 1;
+        result = checkOneCaseForDraw(condition, firstIndex, dimension + 1, board, dimension + 1);
+
+        //check second diagonal if first nobody can win
+        if (result == -1) {
+            firstIndex = dimension - 1;
+            condition = dimension * (dimension - 1);
+            result = checkOneCaseForDraw(condition, firstIndex, firstIndex + (dimension - 1), board, dimension - 1);
+        }
+        return result;
+    }
+
+    private int checkVerticalDraw(Board board) {
+        int result = -10;
+        for (int firstIndex = 0; firstIndex < dimension; firstIndex++) {
+            result = checkOneCaseForDraw(dimension*(dimension - 1)+firstIndex, firstIndex, firstIndex+dimension, board,dimension);
+            if (result == -10) break;
+        }
+        return result;
+    }
+
+    private int checkHorizontalDraw(Board board) {
+        int result = -10;
+
+        int conditionfForBreak = dimension*(dimension - 1);
+        for (int firstIndex = 0; firstIndex <= conditionfForBreak; firstIndex+=dimension) {
+            result = checkOneCaseForDraw(firstIndex+dimension-1, firstIndex, firstIndex+1, board,1);
+            if (result == -10) break;
+        }
+
+        return result;
+    }
+
+    private int checkOneCaseForDraw(int condition, int firstIndex, int lastIndex, Board board, int condForLastIndex) {
+        int result = -10;
+        for (int j = lastIndex; j <= condition; j+=condForLastIndex){
+            if(board.getSquare(firstIndex) == 0){
+                firstIndex = j;
+            } else if (board.getSquare(firstIndex) != board.getSquare(j) && (board.getSquare(firstIndex) != 0 && board.getSquare(j) != 0)) {
+                result = -1;
+                break;
+            }
+        }
         return result;
     }
 
